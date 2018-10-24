@@ -1,0 +1,28 @@
+{
+  "name": "nz-ssvgg",
+  "version": "0.0.1",
+  "description": "NG-ZORRO Super SVG generator",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "nz-ssvgg": "./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HsuanXyz/nz-ssvgg.git"
+  },
+  "keywords": [
+    "NG-ZORRO",
+    "svg",
+    "icon"
+  ],
+  "author": "Hsuan Lee",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/HsuanXyz/nz-ssvgg/issues"
+  },
+  "homepage": "https://github.com/HsuanXyz/nz-ssvgg#readme"
+}
