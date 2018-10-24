@@ -63,8 +63,8 @@ function getContent(iconMap) {
   let imports = 'import {\n';
   let icons = 'export const ANT_ICONS = [\n';
   iconMap.forEach(value => {
-    imports += `${value},\n`;
-    icons += `  ${value},\n`
+    imports += `    ${value},\n`;
+    icons += `    ${value},\n`
   });
 
   return `${imports} } from '@ant-design/icons-angular/icons';\n\n${icons}];\n`;
