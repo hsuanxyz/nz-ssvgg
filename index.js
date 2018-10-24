@@ -4,6 +4,31 @@ const fs = require('fs');
 const path = require('path');
 const parse5 = require('parse5');
 
+const whitelist = [
+    'CalendarOutline',
+    'CheckCircleFill',
+    'CheckCircleOutline',
+    'CheckOutline',
+    'ClockCircleOutline',
+    'CloseCircleOutline',
+    'CloseCircleFill',
+    'CloseOutline',
+    'DoubleLeftOutline',
+    'DoubleRightOutline',
+    'DownOutline',
+    'ExclamationCircleFill',
+    'ExclamationCircleOutline',
+    'InfoCircleFill',
+    'InfoCircleOutline',
+    'LeftOutline',
+    'LoadingOutline',
+    'PaperClipOutline',
+    'QuestionCircleOutline',
+    'RightOutline',
+    'UploadOutline',
+    'UpOutline'
+];
+
 (() => {
   const runDir = process.argv[2] || '';
   const runPath = path.resolve(runDir);
@@ -39,7 +64,8 @@ function walkAndGenerator(sourceRoot, filename) {
 
     iconClassList.forEach(value => {
       const iconName = getIconNameByClassName(value);
-      if (iconName) {
+      
+      if (iconName && whitelist.indexOf(iconName) === -1) {
         iconSet.add(iconName)
       }
     });
