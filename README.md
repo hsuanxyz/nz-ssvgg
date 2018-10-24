@@ -26,10 +26,16 @@ NG-ZORRO
 $ npm i nz-ssvgg -g
 ```
 
-运行以下命令
+在项目目录下运行
 
 ```shell
-$ nz-ssvgg hsuanlee/ng-project #项目根目录
+$ nz-ssvgg
+```
+
+或者指定项目根目录
+
+```shell
+$ nz-ssvgg hsuanlee/ng-project
 ```
 
 如果一切正常你可以在你项目的下找到 `src/ant-svg-icons.ts` 文件，看起来像这样:
@@ -67,11 +73,22 @@ export class AppComponent implements OnInit, AfterViewInit {
 }
 ```
 
+### 以下情况无法匹配
+
+```html
+<i nz-icon [type]="express" [theme]="express"></i>
+<i nz-icon type="{{express}}" theme="{{express}}"></i>
+<i class="anticon {{express}}"></i>
+<i [attr.class]="express"></i>
+<i [ngClass]="express"></i>
+```
+
 ## 它是怎么工作的？
 
 1. 读取你项目的 `angular.json` 文件，找到默认项目
-2. 遍历项目文件，使用 `/anticon(-\w+)+/g` 进行匹配
+2. 遍历项目文件进行匹配
 3. 生成按需导入文件夹
+
 
 
 [npm-url]: https://www.npmjs.com/package/nz-ssvgg

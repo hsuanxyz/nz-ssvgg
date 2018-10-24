@@ -2,10 +2,10 @@
 
 const fs = require('fs');
 const path = require('path');
-
+const parse5 = require('parse5');
 
 (() => {
-  const runDir = process.argv[2];
+  const runDir = process.argv[2] || '';
   const runPath = path.resolve(runDir);
   const angularJSONPath = path.join(runPath, 'angular.json');
 
@@ -15,26 +15,23 @@ const path = require('path');
   }
 
   const project = getProject(angularJSONPath);
-  const sourceRoot = path.join(runPath, project.sourceRoot);
+  const sourceRoot = path.join(runPath, project.sourceRoot || project.root);
 
   walkAndGenerator(sourceRoot, `ant-svg-icons.ts`)
 
 })();
 
 function walkAndGenerator(sourceRoot, filename) {
-
   const targetPath = path.join(sourceRoot, filename);
   walk(sourceRoot, (err, results) => {
     const iconClassList = new Set();
-    const regex = /anticon(-\w+)+/g;
 
     results.forEach(file => {
       const content = fs.readFileSync(file).toString();
       if (typeof content === 'string') {
-        const match = content.match(regex) || [];
-        match.forEach(klass => {
-          iconClassList.add(klass);
-        })
+          getIconNames(content).forEach(name => {
+              iconClassList.add(name);
+          });
       }
     });
 
@@ -57,6 +54,45 @@ function walkAndGenerator(sourceRoot, filename) {
       console.log(`生成到：${targetPath}`);
     });
   });
+}
+
+function getIconNames(content) {
+  const names = [];
+    const inClassRegex = /anticon(-\w+)+/g;
+    const inTagRegex = /<i\s.*((type)|(nz-icon)).*<\/i>/g;
+    const inClassMatch = `${content}`.match(inClassRegex) || [];
+    const inTagMatch = `${content}`.match(inTagRegex) || [];
+    inClassMatch.forEach(klass => {
+        names.push(klass);
+    });
+    inTagMatch.forEach(e => {
+        const htmlFragment = parse5.parseFragment(e);
+        let name = '';
+        if (htmlFragment && htmlFragment.childNodes && htmlFragment.childNodes[0]) {
+            let type = htmlFragment.childNodes[0].attrs.find(e => e.name === 'type' || e.name === '[type]');
+            let theme = htmlFragment.childNodes[0].attrs.find(e => e.name === 'theme' || e.name === '[theme]');
+            
+            /**
+             * TODO
+             *  [type] [theme] 匹配出 'xxx'
+             *  type theme 匹配出 {{xxx}}
+             */
+    
+            if (type && type.name === 'type' && /^[A-Za-z]/g.test(type.value) && type.value.indexOf(' ') === -1) {
+                name += type.value
+            }
+    
+            if (theme && theme.name === 'theme' && /^[A-Za-z]/g.test(theme.value) && theme.value.indexOf(' ') === -1) {
+                name += `#${theme.value}`
+            }
+            
+            if (name) {
+                names.push('anticon-' + name);
+            }
+        }
+    });
+    
+    return names;
 }
 
 function getContent(iconMap) {
@@ -124,8 +160,11 @@ function getIconNameByClassName(className) {
 
   if (/(-o)$/.test(parsedIconType)) {
     parsedIconType = parsedIconType.replace(/(-o)$/, '-outline')
+  } else if (/#outline/.test(parsedIconType)) {
+      parsedIconType = parsedIconType.replace(/#outline/, '-outline')
+  } else if (/#fill/.test(parsedIconType)) {
+      parsedIconType = parsedIconType.replace(/#fill/, '-fill')
   } else {
-    // TODO
     parsedIconType = `${parsedIconType}-outline`
   }
 
