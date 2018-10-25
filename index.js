@@ -5,28 +5,28 @@ const path = require('path');
 const parse5 = require('parse5');
 
 const whitelist = [
-    'CalendarOutline',
-    'CheckCircleFill',
-    'CheckCircleOutline',
-    'CheckOutline',
-    'ClockCircleOutline',
-    'CloseCircleOutline',
-    'CloseCircleFill',
-    'CloseOutline',
-    'DoubleLeftOutline',
-    'DoubleRightOutline',
-    'DownOutline',
-    'ExclamationCircleFill',
-    'ExclamationCircleOutline',
-    'InfoCircleFill',
-    'InfoCircleOutline',
-    'LeftOutline',
-    'LoadingOutline',
-    'PaperClipOutline',
-    'QuestionCircleOutline',
-    'RightOutline',
-    'UploadOutline',
-    'UpOutline'
+  'CalendarOutline',
+  'CheckCircleFill',
+  'CheckCircleOutline',
+  'CheckOutline',
+  'ClockCircleOutline',
+  'CloseCircleOutline',
+  'CloseCircleFill',
+  'CloseOutline',
+  'DoubleLeftOutline',
+  'DoubleRightOutline',
+  'DownOutline',
+  'ExclamationCircleFill',
+  'ExclamationCircleOutline',
+  'InfoCircleFill',
+  'InfoCircleOutline',
+  'LeftOutline',
+  'LoadingOutline',
+  'PaperClipOutline',
+  'QuestionCircleOutline',
+  'RightOutline',
+  'UploadOutline',
+  'UpOutline'
 ];
 
 (() => {
@@ -54,9 +54,9 @@ function walkAndGenerator(sourceRoot, filename) {
     results.forEach(file => {
       const content = fs.readFileSync(file).toString();
       if (typeof content === 'string') {
-          getIconNames(content).forEach(name => {
-              iconClassList.add(name);
-          });
+        getIconNames(content).forEach(name => {
+          iconClassList.add(name);
+        });
       }
     });
 
@@ -64,7 +64,7 @@ function walkAndGenerator(sourceRoot, filename) {
 
     iconClassList.forEach(value => {
       const iconName = getIconNameByClassName(value);
-      
+
       if (iconName && whitelist.indexOf(iconName) === -1) {
         iconSet.add(iconName)
       }
@@ -84,41 +84,76 @@ function walkAndGenerator(sourceRoot, filename) {
 
 function getIconNames(content) {
   const names = [];
-    const inClassRegex = /anticon(-\w+)+/g;
-    const inTagRegex = /<i\s.*((type)|(nz-icon)).*<\/i>/g;
-    const inClassMatch = `${content}`.match(inClassRegex) || [];
-    const inTagMatch = `${content}`.match(inTagRegex) || [];
-    inClassMatch.forEach(klass => {
-        names.push(klass);
-    });
-    inTagMatch.forEach(e => {
-        const htmlFragment = parse5.parseFragment(e);
-        let name = '';
-        if (htmlFragment && htmlFragment.childNodes && htmlFragment.childNodes[0]) {
-            let type = htmlFragment.childNodes[0].attrs.find(e => e.name === 'type' || e.name === '[type]');
-            let theme = htmlFragment.childNodes[0].attrs.find(e => e.name === 'theme' || e.name === '[theme]');
-            
-            /**
-             * TODO
-             *  [type] [theme] 匹配出 'xxx'
-             *  type theme 匹配出 {{xxx}}
-             */
-    
-            if (type && type.name === 'type' && /^[A-Za-z]/g.test(type.value) && type.value.indexOf(' ') === -1) {
-                name += type.value
-            }
-    
-            if (theme && theme.name === 'theme' && /^[A-Za-z]/g.test(theme.value) && theme.value.indexOf(' ') === -1) {
-                name += `#${theme.value}`
-            }
-            
-            if (name) {
-                names.push('anticon-' + name);
-            }
+  const inClassRegex = /anticon(-\w+)+/g;
+  const inTagRegex = /<i\s.*((type)|(nz-icon)).*<\/i>/g;
+  const inClassMatch = `${content}`.match(inClassRegex) || [];
+  const inTagMatch = `${content}`.match(inTagRegex) || [];
+  inClassMatch.forEach(klass => {
+    names.push(klass);
+  });
+  inTagMatch.forEach(e => {
+    const htmlFragment = parse5.parseFragment(e);
+    let _names = [];
+    if (htmlFragment && htmlFragment.childNodes && htmlFragment.childNodes[0]) {
+      let type = htmlFragment.childNodes[0].attrs.find(e => e.name === 'type' || e.name === '[type]');
+      let theme = htmlFragment.childNodes[0].attrs.find(e => e.name === 'theme' || e.name === '[theme]');
+
+      /**
+       * type="icon"
+       */
+      if (type && type.name === 'type' && /^[A-Za-z]/g.test(type.value) && type.value.indexOf(' ') === -1) {
+        _names.push(type.value);
+      }
+
+      /**
+       * [type]="value ? 'icon' : 'icon'"
+       * [type]="'icon'"
+       */
+      if (type && type.name === '[type]') {
+        let types = type.value.match(/'[A-Za-z]+'/g) || [];
+        types = types.map(t => t.replace(/'/g, ''));
+        _names.push(...types);
+      }
+
+      /**
+       * theme="theme"
+       */
+      if (theme && theme.name === 'theme' && /^[A-Za-z]/g.test(theme.value) && theme.value.indexOf(' ') === -1) {
+        _names = names.map(e => `${e}#${theme.value}`);
+      }
+
+      /**
+       * [theme]="value ? 'theme' : 'theme'"
+       * [theme]="'theme'"
+       */
+      if (theme && theme.name === '[theme]') {
+        let themes = theme.value.match(/'[A-Za-z]+'/g) || [];
+        themes = themes.map(t => t.replace(/'/g, ''));
+        let themesXNames = [];
+
+        if (themes.indexOf('outline') !== -1) {
+          _names.forEach(n => {
+            themesXNames.push(`${n}#outline`)
+          })
         }
-    });
-    
-    return names;
+
+        if (themes.indexOf('fill') !== -1) {
+          _names.forEach(n => {
+            themesXNames.push(`${n}#fill`)
+          })
+        }
+
+        _names = [...themesXNames];
+      }
+
+      if (_names.length) {
+        _names = _names.map(e => e.indexOf('anticon-') === -1 ? `anticon-${e}` : e);
+        names.push(..._names);
+      }
+    }
+  });
+
+  return names;
 }
 
 function getContent(iconMap) {
@@ -159,7 +194,7 @@ function walk(dir, done) {
             if (!--pending) done(null, results);
           });
         } else {
-          if (['.ts', '.html', '.css', '.less', '.scss', '.js'].indexOf(path.extname(file)) !== -1) {
+          if (['.ts', '.html'].indexOf(path.extname(file)) !== -1) {
             results.push(file);
           }
           if (!--pending) done(null, results);
@@ -167,7 +202,7 @@ function walk(dir, done) {
       });
     });
   });
-};
+}
 
 function getIconNameByClassName(className) {
 
@@ -187,9 +222,9 @@ function getIconNameByClassName(className) {
   if (/(-o)$/.test(parsedIconType)) {
     parsedIconType = parsedIconType.replace(/(-o)$/, '-outline')
   } else if (/#outline/.test(parsedIconType)) {
-      parsedIconType = parsedIconType.replace(/#outline/, '-outline')
+    parsedIconType = parsedIconType.replace(/#outline/, '-outline')
   } else if (/#fill/.test(parsedIconType)) {
-      parsedIconType = parsedIconType.replace(/#fill/, '-fill')
+    parsedIconType = parsedIconType.replace(/#fill/, '-fill')
   } else {
     parsedIconType = `${parsedIconType}-outline`
   }
