@@ -76,7 +76,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 ### 以下情况无法匹配
 
 ```html
-<i nz-icon [type]="express" [theme]="express"></i>
 <i nz-icon type="{{express}}" theme="{{express}}"></i>
 <i class="anticon {{express}}"></i>
 <i [attr.class]="express"></i>
