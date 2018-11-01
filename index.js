@@ -54,7 +54,7 @@ function walkAndGenerator(sourceRoot, filename) {
     results.forEach(file => {
       const content = fs.readFileSync(file).toString();
       if (typeof content === 'string') {
-        getIconNames(content).forEach(name => {
+        paresIcons(content).forEach(name => {
           iconClassList.add(name);
         });
       }
@@ -72,7 +72,7 @@ function walkAndGenerator(sourceRoot, filename) {
 
     const sortIcon = new Array(...iconSet).sort();
 
-    fs.writeFile(targetPath, getContent(sortIcon), function (err) {
+    fs.writeFile(targetPath, generateContent(sortIcon), function (err) {
       if (err) {
         return console.log(err);
       }
@@ -81,8 +81,7 @@ function walkAndGenerator(sourceRoot, filename) {
     });
   });
 }
-
-function getIconNames(content) {
+function paresIcons(content) {
   const names = [];
   const inClassRegex = /anticon(-\w+)+/g;
   const inTagRegex = /<i\s.*((type)|(nz-icon)).*<\/i>/g;
@@ -156,7 +155,7 @@ function getIconNames(content) {
   return names;
 }
 
-function getContent(iconMap) {
+function generateContent(iconMap) {
   let imports = 'import {\n';
   let icons = 'export const ANT_ICONS = [\n';
   iconMap.forEach(value => {
