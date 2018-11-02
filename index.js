@@ -26,7 +26,8 @@ const whitelist = [
   'QuestionCircleOutline',
   'RightOutline',
   'UploadOutline',
-  'UpOutline'
+  'UpOutline',
+  'ClassOutline'
 ];
 
 (() => {
@@ -158,9 +159,9 @@ function paresIcons(content) {
 function generateContent(iconMap) {
   let imports = 'import {\n';
   let icons = 'export const ANT_ICONS = [\n';
-  iconMap.forEach(value => {
-    imports += `    ${value},\n`;
-    icons += `    ${value},\n`
+  iconMap.forEach((value, index) => {
+    imports += `    ${value}${index < iconMap.length - 1? ',' : '' }\n`;
+    icons += `    ${value}${index < iconMap.length - 1? ',' : '' }\n`
   });
 
   return `${imports} } from '@ant-design/icons-angular/icons';\n\n${icons}];\n`;
