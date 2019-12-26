@@ -158,7 +158,10 @@ function paresIcons(content) {
       }
 
       if (_names.length) {
-        _names = _names.map(e => e.indexOf('anticon-') === -1 ? `anticon-${e}` : e);
+        _names = _names
+            .map(e => e.indexOf('anticon-') === -1 ? `anticon-${e}` : e)
+            .filter(e => e.indexOf(':') === -1);
+
         names.push(..._names);
       }
     }
