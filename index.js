@@ -95,21 +95,24 @@ function paresIcons(content) {
     const htmlFragment = parse5.parseFragment(e);
     let _names = [];
     if (htmlFragment && htmlFragment.childNodes && htmlFragment.childNodes[0]) {
-      let type = htmlFragment.childNodes[0].attrs.find(e => e.name === 'type' || e.name === '[type]');
-      let theme = htmlFragment.childNodes[0].attrs.find(e => e.name === 'theme' || e.name === '[theme]');
+      let type = htmlFragment.childNodes[0].attrs.find(attr => ['type', '[type]', 'nzType', '[nzType]'].indexOf(attr.name) !== -1);
+      let theme = htmlFragment.childNodes[0].attrs.find(attr => ['theme', '[theme]', 'nzTheme', '[nzTheme]'].indexOf(attr.name) !== -1);
 
       /**
        * type="icon"
+       * nzType="icon"
        */
-      if (type && type.name === 'type' && /^[A-Za-z]/g.test(type.value) && type.value.indexOf(' ') === -1) {
+      if (type && ['type', 'nzType'].indexOf(type.name) !== -1 && /^[A-Za-z]/g.test(type.value) && type.value.indexOf(' ') === -1) {
         _names.push(type.value);
       }
 
       /**
        * [type]="value ? 'icon' : 'icon'"
+       * [nzType]="value ? 'icon' : 'icon'"
        * [type]="'icon'"
+       * [nzType]="'icon'"
        */
-      if (type && type.name === '[type]') {
+      if (type && ['[type]', '[nzType]'].indexOf(type.name) !== -1) {
         let types = type.value.match(/'[A-Za-z]+'/g) || [];
         types = types.map(t => t.replace(/'/g, ''));
         _names.push(...types);
@@ -117,16 +120,19 @@ function paresIcons(content) {
 
       /**
        * theme="theme"
+       * nzTheme="theme"
        */
-      if (theme && theme.name === 'theme' && /^[A-Za-z]/g.test(theme.value) && theme.value.indexOf(' ') === -1) {
-        _names = names.map(e => `${e}#${theme.value}`);
+      if (theme && ['theme', 'nzTheme'].indexOf(theme.name) !== -1 && /^[A-Za-z]/g.test(theme.value) && theme.value.indexOf(' ') === -1) {
+        _names = _names.map(e => `${e}#${theme.value}`);
       }
 
       /**
        * [theme]="value ? 'theme' : 'theme'"
+       * [nzTheme]="value ? 'theme' : 'theme'"
        * [theme]="'theme'"
+       * [nzTheme]="'theme'"
        */
-      if (theme && theme.name === '[theme]') {
+      if (theme && ['[theme]', '[nzTheme]'].indexOf(theme.name) !== -1 ) {
         let themes = theme.value.match(/'[A-Za-z]+'/g) || [];
         themes = themes.map(t => t.replace(/'/g, ''));
         let themesXNames = [];
@@ -207,7 +213,6 @@ function walk(dir, done) {
 function getIconNameByClassName(className) {
 
   let parsedIconType = className.replace('anticon-', '');
-
   if (className === 'anticon-spin' || className.indexOf('-o-') !== -1) {
     return null;
   }
