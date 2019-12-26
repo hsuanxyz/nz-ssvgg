@@ -85,7 +85,7 @@ function walkAndGenerator(sourceRoot, filename) {
 function paresIcons(content) {
   const names = [];
   const inClassRegex = /anticon(-\w+)+/g;
-  const inTagRegex = /<i\s.*((type)|(nz-icon)).*<\/i>/g;
+  const inTagRegex = /<i\s.*((type|nzType)|(nz-icon)).*<\/i>/g;
   const inClassMatch = `${content}`.match(inClassRegex) || [];
   const inTagMatch = `${content}`.match(inTagRegex) || [];
   inClassMatch.forEach(klass => {
@@ -95,14 +95,14 @@ function paresIcons(content) {
     const htmlFragment = parse5.parseFragment(e);
     let _names = [];
     if (htmlFragment && htmlFragment.childNodes && htmlFragment.childNodes[0]) {
-      let type = htmlFragment.childNodes[0].attrs.find(attr => ['type', '[type]', 'nzType', '[nzType]'].indexOf(attr.name) !== -1);
-      let theme = htmlFragment.childNodes[0].attrs.find(attr => ['theme', '[theme]', 'nzTheme', '[nzTheme]'].indexOf(attr.name) !== -1);
+      let type = htmlFragment.childNodes[0].attrs.find(attr => ['type', '[type]', 'nztype', '[nztype]'].indexOf(attr.name) !== -1);
+      let theme = htmlFragment.childNodes[0].attrs.find(attr => ['theme', '[theme]', 'nztheme', '[nztheme]'].indexOf(attr.name) !== -1);
 
       /**
        * type="icon"
        * nzType="icon"
        */
-      if (type && ['type', 'nzType'].indexOf(type.name) !== -1 && /^[A-Za-z]/g.test(type.value) && type.value.indexOf(' ') === -1) {
+      if (type && ['type', 'nztype'].indexOf(type.name) !== -1 && /^[A-Za-z]/g.test(type.value) && type.value.indexOf(' ') === -1) {
         _names.push(type.value);
       }
 
@@ -112,7 +112,7 @@ function paresIcons(content) {
        * [type]="'icon'"
        * [nzType]="'icon'"
        */
-      if (type && ['[type]', '[nzType]'].indexOf(type.name) !== -1) {
+      if (type && ['[type]', '[nztype]'].indexOf(type.name) !== -1) {
         let types = type.value.match(/'[A-Za-z]+'/g) || [];
         types = types.map(t => t.replace(/'/g, ''));
         _names.push(...types);
@@ -122,7 +122,7 @@ function paresIcons(content) {
        * theme="theme"
        * nzTheme="theme"
        */
-      if (theme && ['theme', 'nzTheme'].indexOf(theme.name) !== -1 && /^[A-Za-z]/g.test(theme.value) && theme.value.indexOf(' ') === -1) {
+      if (theme && ['theme', 'nztheme'].indexOf(theme.name) !== -1 && /^[A-Za-z]/g.test(theme.value) && theme.value.indexOf(' ') === -1) {
         _names = _names.map(e => `${e}#${theme.value}`);
       }
 
@@ -132,7 +132,7 @@ function paresIcons(content) {
        * [theme]="'theme'"
        * [nzTheme]="'theme'"
        */
-      if (theme && ['[theme]', '[nzTheme]'].indexOf(theme.name) !== -1 ) {
+      if (theme && ['[theme]', '[nztheme]'].indexOf(theme.name) !== -1 ) {
         let themes = theme.value.match(/'[A-Za-z]+'/g) || [];
         themes = themes.map(t => t.replace(/'/g, ''));
         let themesXNames = [];
@@ -150,6 +150,11 @@ function paresIcons(content) {
         }
 
         _names = [...themesXNames];
+      }
+
+      if (!theme) {
+        _names = _names.map(e => `${e}#outline`);
+
       }
 
       if (_names.length) {
