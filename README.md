@@ -59,19 +59,7 @@ export const ANT_ICONS = [
 
 ```
 
-接下来按照官方文档添加图标即可，就像这样:
-
-```ts
-import { ANT_ICONS } from '../ant-svg-icons.ts';
-import { NzIconService } from 'ng-zorro-antd';
-
-export class AppComponent implements OnInit, AfterViewInit {
-  constructor(private iconService: NzIconService) {
-    // Import what you need.
-    this.iconService.addIcon(...ANT_ICONS);
-  }
-}
-```
+接下来按照官方文档添加图标即可。
 
 ### 以下情况无法匹配
 
